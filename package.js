@@ -14,7 +14,7 @@ Package.onUse(function (api) {
 	api.versionsFrom('1.2.0.1');
 	api.use([
 		'ecmascript',
-		'nathantreid:css-modules-import-path-helpers'
+		'nathantreid:css-modules-import-path-helpers@0.0.1'
 	]);
 
 	api.addFiles([
