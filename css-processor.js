@@ -28,8 +28,8 @@ CssProcessor = class CssProcessor {
 		this.tokensByFile = {};
 	}
 
-	process(source, relativeTo, allFiles) {
-		return processInternal.call(this, source, relativeTo);
+	process(_source, _relativeTo, allFiles) {
+		return processInternal.call(this, _source, _relativeTo);
 
 		function processInternal(source, relativeTo, _trace) {
 			relativeTo = relativeTo.replace(/.*(\{.*)/, '$1').replace(/\\/g, '/');
@@ -66,15 +66,13 @@ CssProcessor = class CssProcessor {
 					return contents;
 				}
 				catch (e) {
-					throw `CSS Modules: unable to read file ${importPath}: ${JSON.stringify(e)}`;
-				}
-
+				throw new Error(`CSS Modules: unable to read file ${importPath}: ${JSON.stringify(e)}`);
 			}
 		}
 	}
 
 	get finalSource() {
 		return Object.keys(this.sources).sort(traceKeySorter).map(s => this.sources[s])
-			.join("")
+			.join("");
 	}
 };
