@@ -43,29 +43,30 @@ CssProcessor = class CssProcessor {
 				if (tokens)
 					return resolve(tokens);
 
-				this.core.load(source.contents, rootRelativePath, trace, processInternal.bind(this))
+				this.core.load(source.contents, source.path, trace, processInternal.bind(this))
 					.then(({ injectableSource, exportTokens }) => {
 						this.sources[trace] = injectableSource;
 						this.tokensByFile[source.path] = exportTokens;
 						resolve({source: injectableSource, tokens: exportTokens});
 					}, reject);
 			});
+		}
 
-			function getSourceContents(source, relativeTo) {
-				if (source instanceof String || typeof source === "string") {
-					source = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
-					return {path: source, contents: importModule(source)};
-				}
-				return source;
+		function getSourceContents(source, relativeTo) {
+			if (source instanceof String || typeof source === "string") {
+				source = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
+				return {path: source, contents: importModule(source)};
 			}
+			return source;
+		}
 
-			function importModule(importPath) {
-				try {
-					var file = allFiles.get(importPath);
-					var contents = file.getContentsAsString();
-					return contents;
-				}
-				catch (e) {
+		function importModule(importPath) {
+			try {
+				var file = allFiles.get(importPath);
+				var contents = file.getContentsAsString();
+				return contents;
+			}
+			catch (e) {
 				throw new Error(`CSS Modules: unable to read file ${importPath}: ${JSON.stringify(e)}`);
 			}
 		}
