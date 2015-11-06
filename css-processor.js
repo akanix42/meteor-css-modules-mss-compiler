@@ -37,8 +37,6 @@ CssProcessor = class CssProcessor {
 			var trace = _trace || String.fromCharCode(this.importNr++);
 
 			return new Promise((resolve, reject) => {
-				var relativeDir = path.dirname(relativeTo);
-				var rootRelativePath = path.resolve(relativeDir, source.path);
 				const tokens = this.tokensByFile[source.path];
 				if (tokens)
 					return resolve(tokens);
