@@ -75,3 +75,9 @@ CssProcessor = class CssProcessor {
 			.join("");
 	}
 };
+
+Core.scope.generateScopedName = function(exportedName, path) {
+	let sanitisedPath = path.replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
+
+	return `_${sanitisedPath}__${exportedName}`;
+};
