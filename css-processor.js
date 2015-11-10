@@ -1,30 +1,16 @@
-const Core = Npm.require('css-modules-loader-core');
-const path = Plugin.path;
-const fs = Plugin.fs;
+var postcss = Npm.require('postcss');
+var localByDefault = Npm.require('postcss-modules-local-by-default');
+var extractImports = Npm.require('postcss-modules-extract-imports');
+var scope = Npm.require('postcss-modules-scope');
+var values = Npm.require('postcss-modules-values');
 
-// Sorts dependencies in the following way:
-// AAA comes before AA and A
-// AB comes after AA and before A
-// All Bs come after all As
-// This ensures that the files are always returned in the following order:
-// - In the order they were required, except
-// - After all their dependencies
-const traceKeySorter = (a, b) => {
-	if (a.length < b.length) {
-		return a < b.substring(0, a.length) ? -1 : 1
-	} else if (a.length > b.length) {
-		return a.substring(0, b.length) <= b ? -1 : 1
-	} else {
-		return a < b ? -1 : 1
-	}
-};
+var Parser = Npm.require('css-modules-loader-core/lib/parser');
 
 CssProcessor = class CssProcessor {
 	constructor(root, plugins) {
 		this.root = root;
-		this.sources = {};
 		this.importNr = 0;
-		this.core = new Core(plugins);
+		this.plugins = plugins || CssProcessor.defaultPlugins;
 		this.tokensByFile = {};
 	}
 
@@ -41,11 +27,10 @@ CssProcessor = class CssProcessor {
 				if (tokens)
 					return resolve(tokens);
 
-				this.core.load(source.contents, source.path, trace, processInternal.bind(this))
-					.then(({ injectableSource, exportTokens }) => {
-						this.sources[trace] = injectableSource;
+				this.load(source.contents, source.path, trace, processInternal.bind(this))
+					.then(({ injectableSource, exportTokens, sourceMap }) => {
 						this.tokensByFile[source.path] = exportTokens;
-						resolve({source: injectableSource, tokens: exportTokens});
+						resolve({source: injectableSource, tokens: exportTokens, sourceMap: sourceMap});
 					}, reject);
 			});
 		}
@@ -70,13 +55,30 @@ CssProcessor = class CssProcessor {
 		}
 	}
 
-	get finalSource() {
-		return Object.keys(this.sources).sort(traceKeySorter).map(s => this.sources[s])
-			.join("");
+	load(sourceString, sourcePath, trace, pathFetcher) {
+		let parser = new Parser(pathFetcher, trace);
+
+		return postcss(this.plugins.concat([parser.plugin]))
+			.process(sourceString, {
+				from: sourcePath,
+				to: sourcePath.replace('\.mss$', '.css'),
+				map: {inline: false}
+			})
+			.then(result => {
+				return {injectableSource: result.css, exportTokens: parser.exportTokens, sourceMap: result.map};
+			});
 	}
+
 };
 
-Core.scope.generateScopedName = function(exportedName, path) {
+CssProcessor.values = values;
+CssProcessor.localByDefault = localByDefault;
+CssProcessor.extractImports = extractImports;
+CssProcessor.scope = scope;
+
+CssProcessor.defaultPlugins = [values, localByDefault, extractImports, scope];
+
+CssProcessor.scope.generateScopedName = function (exportedName, path) {
 	let sanitisedPath = path.replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
 
 	return `_${sanitisedPath}__${exportedName}`;
