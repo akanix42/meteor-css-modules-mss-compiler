@@ -2,8 +2,7 @@ CssModulesCompiler = class CssModulesCompiler {
 	processFilesForTarget(files) {
 		var processor = new CssProcessor('./');
 		var firstFile = files[0];
-		const {css, tokens } = processFiles(files, processor);
-		outputCompiledCss(css, firstFile);
+		const { tokens } = processFiles(files, processor);
 		outputCompiledJs(tokens, firstFile);
 	}
 };
@@ -12,13 +11,18 @@ CssModulesCompiler = class CssModulesCompiler {
 function processFiles(files, processor) {
 	const allFiles = createAllFilesMap(files);
 	files.forEach(processFile.bind(this));
-	return {css: processor.finalSource, tokens: processor.tokensByFile};
+	return { tokens: processor.tokensByFile};
 
 	function processFile(file) {
 		var source = {path: ImportPathHelpers.getImportPathInPackage(file), contents: file.getContentsAsBuffer().toString('utf8')};
 		return processor.process(source, './', allFiles)
 			.then((result)=> {
-				return {css: result.source, tokens: result.tokens};
+				file.addStylesheet({
+					data: result.source,
+					path: file.getPathInPackage().replace('\.mss$', '.css'),
+					sourceMap: JSON.stringify(result.sourceMap)
+				});
+				return { tokens: result.tokens};
 			}).await();
 	}
 }
@@ -30,14 +34,6 @@ function createAllFilesMap(files) {
 		allFiles.set(importPath, inputFile);
 	});
 	return allFiles;
-}
-
-function outputCompiledCss(css, firstFile) {
-	firstFile.addStylesheet({
-		data: css,
-		path: 'css-modules.css'
-		// sourceMap: compileResult.sourceMap
-	});
 }
 
 function outputCompiledJs(tokens, firstFile) {

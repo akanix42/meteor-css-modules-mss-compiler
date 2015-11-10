@@ -29,5 +29,11 @@ Package.onUse(function (api) {
 
 
 Npm.depends({
-	'css-modules-loader-core': '1.0.0'
+	'css-modules-loader-core': '1.0.0',
+	"postcss": "5.0.10",
+	"postcss-modules-values": "1.1.1",
+	"postcss-modules-extract-imports": "1.0.0",
+	"postcss-modules-local-by-default": "1.0.0",
+	"postcss-modules-scope": "1.0.0"
+
 });
