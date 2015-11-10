@@ -29,5 +29,13 @@ Package.onUse(function (api) {
 
 
 Npm.depends({
-	'css-modules-loader-core': '1.0.0'
+	'css-modules-loader-core': '1.0.0',
+	'postcss-css-variables': '0.5.1',
+	'postcss-custom-media': '5.0.0',
+	'postcss-nested-props': '1.0.0',
+	'postcss-import': '7.1.3',
+	'postcss-media-minmax': '2.1.0',
+	'postcss-color-hex-alpha': '2.0.0',
+	'postcss-pseudo-class-any-link': '1.0.0',
+	'postcss-selector-not': '2.0.0',
 });
