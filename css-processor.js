@@ -6,6 +6,14 @@ var values = Npm.require('postcss-modules-values');
 
 var Parser = Npm.require('css-modules-loader-core/lib/parser');
 
+// Additional PostCSS plugins
+var nestedProps = Npm.require('postcss-nested-props');
+var nested = Npm.require('postcss-nested');
+var mediaMinMax = Npm.require('postcss-media-minmax');
+var colorHexAlpha = Npm.require('postcss-color-hex-alpha');
+var anyLink = Npm.require('postcss-pseudo-class-any-link');
+var notSelector = Npm.require('postcss-selector-not');
+
 CssProcessor = class CssProcessor {
 	constructor(root, plugins) {
 		this.root = root;
@@ -75,8 +83,25 @@ CssProcessor.values = values;
 CssProcessor.localByDefault = localByDefault;
 CssProcessor.extractImports = extractImports;
 CssProcessor.scope = scope;
+CssProcessor.mediaMinMax = mediaMinMax;
+CssProcessor.nestedProps = nestedProps;
+CssProcessor.nested = nested;
+CssProcessor.colorHexAlpha = colorHexAlpha;
+CssProcessor.anyLink = anyLink;
+CssProcessor.notSelector = notSelector;
 
-CssProcessor.defaultPlugins = [values, localByDefault, extractImports, scope];
+CssProcessor.defaultPlugins = [
+	values,
+	nestedProps,
+	nested,
+	colorHexAlpha,
+	mediaMinMax,
+	anyLink,
+	notSelector,
+	localByDefault,
+	extractImports,
+	scope
+];
 
 CssProcessor.scope.generateScopedName = function (exportedName, path) {
 	let sanitisedPath = path.replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');

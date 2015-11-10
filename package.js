@@ -1,6 +1,6 @@
 Package.describe({
 	name: 'nathantreid:css-modules-mss-compiler',
-	version: '0.2.0',
+	version: '0.3.0',
 	// Brief, one-line summary of the package.
 	summary: 'CSS modules MSS compiler.',
 	// URL to the Git repository containing the source code for this package.
@@ -35,8 +35,7 @@ Npm.depends({
 	'postcss-modules-extract-imports': '1.0.0',
 	'postcss-modules-local-by-default': '1.0.0',
 	'postcss-modules-scope': '1.0.0',
-	'postcss-css-variables': '0.5.1',
-	'postcss-custom-media': '5.0.0',
+	'postcss-nested': '1.0.0',
 	'postcss-nested-props': '1.0.0',
 	'postcss-media-minmax': '2.1.0',
 	'postcss-color-hex-alpha': '2.0.0',
