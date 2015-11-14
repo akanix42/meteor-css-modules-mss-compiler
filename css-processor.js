@@ -92,9 +92,9 @@ CssProcessor.notSelector = notSelector;
 CssProcessor.simpleVars = simpleVars;
 
 CssProcessor.defaultPlugins = [
+	nestedProps,
 	simpleVars,
 	values,
-	nestedProps,
 	nested,
 	colorHexAlpha,
 	mediaMinMax,
