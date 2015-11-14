@@ -13,12 +13,13 @@ var mediaMinMax = Npm.require('postcss-media-minmax');
 var colorHexAlpha = Npm.require('postcss-color-hex-alpha');
 var anyLink = Npm.require('postcss-pseudo-class-any-link');
 var notSelector = Npm.require('postcss-selector-not');
+var simpleVars = Npm.require('postcss-simple-vars');
 
 CssProcessor = class CssProcessor {
-	constructor(root, plugins) {
+	constructor(root, options) {
 		this.root = root;
 		this.importNr = 0;
-		this.plugins = plugins || CssProcessor.defaultPlugins;
+		this.plugins = setPluginOptions(options, CssProcessor.defaultPlugins);
 		this.tokensByFile = {};
 	}
 
@@ -56,8 +57,7 @@ CssProcessor = class CssProcessor {
 				var file = allFiles.get(importPath);
 				var contents = file.getContentsAsString();
 				return contents;
-			}
-			catch (e) {
+			} catch (e) {
 				throw new Error(`CSS Modules: unable to read file ${importPath}: ${JSON.stringify(e)}`);
 			}
 		}
@@ -89,8 +89,10 @@ CssProcessor.nested = nested;
 CssProcessor.colorHexAlpha = colorHexAlpha;
 CssProcessor.anyLink = anyLink;
 CssProcessor.notSelector = notSelector;
+CssProcessor.simpleVars = simpleVars;
 
 CssProcessor.defaultPlugins = [
+	simpleVars,
 	values,
 	nestedProps,
 	nested,
@@ -108,3 +110,14 @@ CssProcessor.scope.generateScopedName = function (exportedName, path) {
 
 	return `_${sanitisedPath}__${exportedName}`;
 };
+
+function setPluginOptions(options, defaultPlugins) {
+	var plugins = options.plugins || defaultPlugins;
+
+	if (options.pluginOptions.simpleVars) {
+		plugins[0](options.pluginOptions.simpleVars);
+		var updateSimpleVars = R.map(plugin=>plugin === simpleVars ? simpleVars(options.pluginOptions.simpleVars) : plugin);
+		plugins = updateSimpleVars(plugins);
+	}
+	return plugins;
+}
