@@ -1,15 +1,20 @@
-var fs;
-var optionsFile = 'config/css-modules.json';
+var stripJsonComments = Npm.require('strip-json-comments');
+var optionsFilePath = 'config/css-modules.json';
+loadJsonFile = null;
+
+fs = null;
 
 
 CssModulesCompiler = class CssModulesCompiler {
 	constructor(plugin) {
 		fs = plugin.fs;
+
+		loadJsonFile = R.compose(JSON.parse, stripJsonComments, R.partialRight(fs.readFileSync, 'utf-8'));
 	}
 
 	processFilesForTarget(files) {
-		var options = loadOptionsFile(optionsFile);
-		var processor = new CssProcessor('./', options);
+		var plugins = new PluginsLoader().load();
+		var processor = new CssProcessor('./', plugins);
 		var firstFile = files[0];
 		const { tokens } = processFiles(files, processor);
 		outputCompiledJs(tokens, firstFile);
@@ -55,49 +60,3 @@ function outputCompiledJs(tokens, firstFile) {
 	});
 }
 
-function loadOptionsFile() {
-	var options;
-	var defaultOptions = {
-		postcssPlugins: undefined,
-		pluginOptions: {}
-	};
-
-	if (fs.existsSync(optionsFile))
-		options = R.merge(defaultOptions, JSON.parse(fs.readFileSync(optionsFile)));
-
-	if (options.postcssPlugins)
-		options.postcssPlugins = options.postcssPlugins.map((pluginName)=> {
-			var plugin = CssProcessor[pluginName];
-			if (plugin === undefined) throw new Error(`plugin ${pluginName} is not a valid selection!`);
-			return plugin;
-		});
-
-	options.pluginOptions = options.pluginOptions || {};
-	options.pluginOptions.simpleVars = R.merge(options.pluginOptions.simpleVars || {}, {variables: retrieveGlobalVariables(options.globalVariableFiles)});
-	return options;
-}
-
-function retrieveGlobalVariables(globalVariableFiles) {
-	if (!globalVariableFiles) return undefined;
-	var getFilesAsJson = R.compose(R.mergeAll, R.map(R.compose(JSON.parse, fs.readFileSync, decodeFilePath)));
-
-	return getFilesAsJson(globalVariableFiles);
-}
-
-function decodeFilePath(filePath) {
-	const match = filePath.match(/{(.*)}\/(.*)$/);
-	if (!match)
-		return filePath;
-
-	if (match[1] === '') return match[2];
-
-	var paths = [];
-
-	paths[1] = paths[0] = `packages/${match[1].replace(':', '_')}/${match[2]}`;
-	if (!fs.existsSync(paths[0]))
-		paths[2] = paths[0] = 'packages/' + match[1].replace(/.*:/, '') + '/' + match[2];
-	if (!fs.existsSync(paths[0]))
-		throw new Error(`Path not exist: ${filePath}\nTested path 1: ${paths[1]}\nTest path 2: ${paths[2]}`);
-
-	return paths[0];
-}

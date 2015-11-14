@@ -1,25 +1,11 @@
 var postcss = Npm.require('postcss');
-var localByDefault = Npm.require('postcss-modules-local-by-default');
-var extractImports = Npm.require('postcss-modules-extract-imports');
-var scope = Npm.require('postcss-modules-scope');
-var values = Npm.require('postcss-modules-values');
-
 var Parser = Npm.require('css-modules-loader-core/lib/parser');
 
-// Additional PostCSS plugins
-var nestedProps = Npm.require('postcss-nested-props');
-var nested = Npm.require('postcss-nested');
-var mediaMinMax = Npm.require('postcss-media-minmax');
-var colorHexAlpha = Npm.require('postcss-color-hex-alpha');
-var anyLink = Npm.require('postcss-pseudo-class-any-link');
-var notSelector = Npm.require('postcss-selector-not');
-var simpleVars = Npm.require('postcss-simple-vars');
-
 CssProcessor = class CssProcessor {
-	constructor(root, options) {
+	constructor(root, plugins) {
 		this.root = root;
 		this.importNr = 0;
-		this.plugins = setPluginOptions(options, CssProcessor.defaultPlugins);
+		this.plugins = plugins;
 		this.tokensByFile = {};
 	}
 
@@ -78,46 +64,3 @@ CssProcessor = class CssProcessor {
 	}
 
 };
-
-CssProcessor.values = values;
-CssProcessor.localByDefault = localByDefault;
-CssProcessor.extractImports = extractImports;
-CssProcessor.scope = scope;
-CssProcessor.mediaMinMax = mediaMinMax;
-CssProcessor.nestedProps = nestedProps;
-CssProcessor.nested = nested;
-CssProcessor.colorHexAlpha = colorHexAlpha;
-CssProcessor.anyLink = anyLink;
-CssProcessor.notSelector = notSelector;
-CssProcessor.simpleVars = simpleVars;
-
-CssProcessor.defaultPlugins = [
-	nestedProps,
-	simpleVars,
-	values,
-	nested,
-	colorHexAlpha,
-	mediaMinMax,
-	anyLink,
-	notSelector,
-	localByDefault,
-	extractImports,
-	scope
-];
-
-CssProcessor.scope.generateScopedName = function (exportedName, path) {
-	let sanitisedPath = path.replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
-
-	return `_${sanitisedPath}__${exportedName}`;
-};
-
-function setPluginOptions(options, defaultPlugins) {
-	var plugins = options.plugins || defaultPlugins;
-
-	if (options.pluginOptions.simpleVars) {
-		plugins[0](options.pluginOptions.simpleVars);
-		var updateSimpleVars = R.map(plugin=>plugin === simpleVars ? simpleVars(options.pluginOptions.simpleVars) : plugin);
-		plugins = updateSimpleVars(plugins);
-	}
-	return plugins;
-}
