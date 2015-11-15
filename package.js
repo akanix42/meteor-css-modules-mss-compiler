@@ -2,7 +2,7 @@ var optionsFilePath = 'config/css-modules.json';
 
 Package.describe({
 	name: 'nathantreid:css-modules-mss-compiler',
-	version: '1.0.0',
+	version: '0.5.0',
 	// Brief, one-line summary of the package.
 	summary: 'CSS modules MSS compiler.',
 	// URL to the Git repository containing the source code for this package.
@@ -84,7 +84,7 @@ function canProceed() {
 function getDefaultOptionsFile() {
 	file = (function () { /*
 	 {
-	 "version": "1.0.0",
+	 "version": "0.5.0",
 	 "postcssPlugins": [
 	 {
 	 "package": "postcss-simple-vars",
