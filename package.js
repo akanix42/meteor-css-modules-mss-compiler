@@ -2,7 +2,7 @@ var optionsFilePath = 'config/css-modules.json';
 
 Package.describe({
 	name: 'nathantreid:css-modules-mss-compiler',
-	version: '0.5.0',
+	version: '0.5.1',
 	// Brief, one-line summary of the package.
 	summary: 'CSS modules MSS compiler.',
 	// URL to the Git repository containing the source code for this package.
@@ -26,7 +26,8 @@ Package.onUse(function (api) {
 		'css-processor.js',
 		'css-modules-compiler.js'
 	]);
-	api.addAssets('../../' + optionsFilePath, 'server');
+	if (shouldHaveOptionsFile())
+		api.addAssets('../../' + optionsFilePath, 'server');
 
 	api.export('ImportPathHelpers');
 	api.export('CssModulesCompiler');
@@ -42,12 +43,9 @@ createDefaultOptionsFile();
 registerNpmDependencies();
 
 function registerNpmDependencies() {
-	R.compose(JSON.parse, stripJsonComments);
-	var loadJsonFile = R.compose(JSON.parse, stripJsonComments, R.partialRight(fs.readFileSync, ['utf-8']));
-	var getPluginPair = function (pluginEntry) {
-		return [pluginEntry.package, pluginEntry.version];
-	};
-	var getPackages = R.compose(R.fromPairs, R.map(getPluginPair), R.prop('postcssPlugins'), loadJsonFile);
+	var npmDependenciesFromOptionsFile;
+	if (shouldHaveOptionsFile())
+		npmDependenciesFromOptionsFile = getNpmDependenciesFromOptionsFile();
 
 	Npm.depends(
 		R.merge(
@@ -55,13 +53,28 @@ function registerNpmDependencies() {
 				"css-modules-loader-core": "1.0.0",
 				"postcss": "5.0.10",
 				"strip-json-comments": "1.0.4",
+				"postcss-modules-local-by-default": "1.0.0",
+				"postcss-modules-extract-imports": "1.0.0",
+				"postcss-modules-scope": "1.0.0",
+				"postcss-modules-values": "1.1.1"
 			},
-			getPackages(optionsFilePath))
+			npmDependenciesFromOptionsFile)
 	);
 }
 
+function getNpmDependenciesFromOptionsFile() {
+	R.compose(JSON.parse, stripJsonComments);
+	var loadJsonFile = R.compose(JSON.parse, stripJsonComments, R.partialRight(fs.readFileSync, ['utf-8']));
+	var getPluginPair = function (pluginEntry) {
+		return [pluginEntry.package, pluginEntry.version];
+	};
+	var getPackages = R.compose(R.fromPairs, R.map(getPluginPair), R.prop('postcssPlugins'), loadJsonFile);
+
+	return getPackages(optionsFilePath);
+}
+
 function createDefaultOptionsFile() {
-	if (canProceed() && !fs.existsSync(optionsFilePath)) {
+	if (shouldHaveOptionsFile() && !fs.existsSync(optionsFilePath)) {
 		console.log('\n');
 		console.log("-> creating `config/css-modules.json` for the first time.");
 		console.log("-> customize your PostCSS plugins in `config/css-modules.json`");
@@ -73,7 +86,7 @@ function createDefaultOptionsFile() {
 	}
 }
 
-function canProceed() {
+function shouldHaveOptionsFile() {
 	var unAcceptableCommands = {'test-packages': 1, 'publish': 1};
 	if (process.argv.length > 2) {
 		var command = process.argv[2];
