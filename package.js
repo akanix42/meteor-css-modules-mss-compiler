@@ -34,6 +34,7 @@ Package.onUse(function (api) {
 
 
 var fs = Npm.require('fs');
+var path = Npm.require('path');
 var R = loadRamda();
 var stripJsonComments = loadStripJsonComments();
 
@@ -66,6 +67,8 @@ function createDefaultOptionsFile() {
 		console.log("-> customize your PostCSS plugins in `config/css-modules.json`");
 		console.log();
 
+		var directory = path.dirname(optionsFilePath);
+		fs.existsSync(directory) || fs.mkdirSync(directory);
 		fs.writeFileSync(optionsFilePath, getDefaultOptionsFile());
 	}
 }
