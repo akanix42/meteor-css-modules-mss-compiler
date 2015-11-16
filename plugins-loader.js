@@ -49,10 +49,10 @@ function applyPluginOptions(plugin, pluginEntry) {
 	var options = pluginEntry.options !== undefined ? pluginEntry.options : undefined;
 	var fileOptions;
 	if (R.type(pluginEntry.optionsFiles) === 'Array') {
-		var getFilesAsJson = R.compose(R.mergeAll, R.map(R.compose(loadJsonFile, decodeFilePath)));
+		var getFilesAsJson = R.compose(R.reduce(deepExtend, {}), R.map(R.compose(loadJsonFile, decodeFilePath)));
 		fileOptions = getFilesAsJson(pluginEntry.optionsFiles);
 		if (Object.keys(fileOptions).length)
-			options = R.merge(options, fileOptions);
+			options = deepExtend(options || {}, fileOptions || {});
 	}
 
 	return options !== undefined ? plugin(options) : plugin;
@@ -74,4 +74,17 @@ function decodeFilePath(filePath) {
 		throw new Error(`Path not exist: ${filePath}\nTested path 1: ${paths[1]}\nTest path 2: ${paths[2]}`);
 
 	return paths[0];
+}
+
+function deepExtend(destination, source) {
+	for (var property in source) {
+		if (source[property] && source[property].constructor &&
+			source[property].constructor === Object) {
+			destination[property] = destination[property] || {};
+			arguments.callee(destination[property], source[property]);
+		} else {
+			destination[property] = source[property];
+		}
+	}
+	return destination;
 }
