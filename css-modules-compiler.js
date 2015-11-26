@@ -3,12 +3,13 @@ var optionsFilePath = 'config/css-modules.json';
 loadJsonFile = null;
 
 fs = null;
+path = null;
 
 
 CssModulesCompiler = class CssModulesCompiler {
 	constructor(plugin) {
 		fs = plugin.fs;
-
+		path = plugin.path;
 		loadJsonFile = R.compose(JSON.parse, stripJsonComments, R.partialRight(fs.readFileSync, 'utf-8'));
 	}
 

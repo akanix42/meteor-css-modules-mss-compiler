@@ -1,9 +1,9 @@
 {
-  "version": "1.0.0",
+  "version": "0.5.0",
   "postcssPlugins": [
 	{
 	  "package": "postcss-simple-vars",
-	  "version": "1.1.0",
+
 	  // Pass options variables directly here:
 	  //	  "options": {
 	  //		"variables": {
@@ -16,44 +16,44 @@
 	  ]
 	},
 	{
-	  "package": "postcss-nested-props",
-	  "version": "1.0.0"
+	  "package": "postcss-nested-props"
+
 	},
 	{
-	  "package": "postcss-modules-values",
-	  "version": "1.1.1"
+	  "package": "postcss-modules-values"
+
 	},
 	{
-	  "package": "postcss-nested",
-	  "version": "1.0.0"
+	  "package": "postcss-nested"
+
 	},
 	{
-	  "package": "postcss-color-hex-alpha",
-	  "version": "2.0.0"
+	  "package": "postcss-color-hex-alpha"
+
 	},
 	{
-	  "package": "postcss-media-minmax",
-	  "version": "2.1.0"
+	  "package": "postcss-media-minmax"
+
 	},
 	{
-	  "package": "postcss-pseudo-class-any-link",
-	  "version": "1.0.0"
+	  "package": "postcss-pseudo-class-any-link"
+
 	},
 	{
-	  "package": "postcss-selector-not",
-	  "version": "2.0.0"
+	  "package": "postcss-selector-not"
+
 	},
 	{
-	  "package": "postcss-modules-local-by-default",
-	  "version": "1.0.0"
+	  "package": "postcss-modules-local-by-default"
+
 	},
 	{
-	  "package": "postcss-modules-extract-imports",
-	  "version": "1.0.0"
+	  "package": "postcss-modules-extract-imports"
+
 	},
 	{
-	  "package": "postcss-modules-scope",
-	  "version": "1.0.0"
+	  "package": "postcss-modules-scope"
+
 	}
   ]
 }

@@ -20,13 +20,8 @@ Package.onUse(function (api) {
 		'ramda:ramda@0.17.1',
 		'meteorhacks:npm@1.5.0'
 	]);
-    //
-	//api.addAssets([
-	//	'plugins-loader.js',
-	//	'css-modules-js-template.js',
-	//	'css-processor.js',
-	//	'css-modules-compiler.js'
-	//], 'server');
+
+	api.addAssets('default-options-file.json', 'server');
 
 	api.addFiles([
 		'plugins-loader.js',
@@ -34,8 +29,6 @@ Package.onUse(function (api) {
 		'css-processor.js',
 		'css-modules-compiler.js'
 	]);
-	if (shouldHaveOptionsFile())
-		api.addAssets('../../' + optionsFilePath, 'server');
 
 	api.export('ImportPathHelpers');
 	api.export('CssModulesCompiler');
