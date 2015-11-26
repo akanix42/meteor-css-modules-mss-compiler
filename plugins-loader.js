@@ -1,4 +1,7 @@
 var optionsFilePath = 'config/css-modules.json';
+var appModulePath = Npm.require('app-module-path');
+appModulePath.addPath(process.cwd() + '/packages/npm-container/.npm/package/node_modules/');
+
 var corePlugins = {
 	"postcss-modules-local-by-default": Npm.require("postcss-modules-local-by-default"),
 	"postcss-modules-extract-imports": Npm.require("postcss-modules-extract-imports"),
