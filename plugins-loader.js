@@ -79,13 +79,22 @@ function applyPluginOptions(plugin, pluginEntry) {
 	var options = pluginEntry.options !== undefined ? pluginEntry.options : undefined;
 	var fileOptions;
 	if (R.type(pluginEntry.optionsFiles) === 'Array') {
-		var getFilesAsJson = R.compose(R.reduce(deepExtend, {}), R.map(R.compose(loadJsonFile, decodeFilePath)));
+		var getFilesAsJson = R.compose(R.reduce(deepExtend, {}), R.map(R.compose(loadJsonOrMssFile, decodeFilePath)));
 		fileOptions = getFilesAsJson(pluginEntry.optionsFiles);
 		if (Object.keys(fileOptions).length)
 			options = deepExtend(options || {}, fileOptions || {});
 	}
 
 	return options !== undefined ? plugin(options) : plugin;
+}
+
+function loadJsonOrMssFile(filePath) {
+	var removeLastOccurrence = (character, str)=> {
+		var index = str.lastIndexOf(character);
+		return str.substring(0, index) + str.substring(index+1);
+	};
+	var loadMssFile = R.compose(variables=> ({variables: variables}), JSON.parse, str=>`{${str}}`, R.curry(removeLastOccurrence)(','), R.replace(/\$(.*):\s*(.*),/g, '"$1":"$2",'), R.replace(/;/g, ','), R.partialRight(fs.readFileSync, 'utf-8'));
+	return filePath.endsWith(".mss") ? loadMssFile(filePath) : loadJsonFile(filePath);
 }
 
 function decodeFilePath(filePath) {
