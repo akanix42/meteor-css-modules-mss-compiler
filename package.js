@@ -26,12 +26,12 @@ Package.onUse(function (api) {
 	api.addFiles([
 		'plugins-loader.js',
 		'css-modules-js-template.js',
-		'css-processor.js',
-		'css-modules-compiler.js'
+		'css-modules-processor.js',
+		'css-modules-build-plugin.js'
 	]);
 
 	api.export('ImportPathHelpers');
-	api.export('CssModulesCompiler');
+	api.export('CssModulesBuildPlugin');
 });
 
 Npm.depends(

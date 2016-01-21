@@ -4,7 +4,7 @@ fs = null;
 path = null;
 
 
-CssModulesCompiler = class CssModulesCompiler {
+CssModulesBuildPlugin = class CssModulesBuildPlugin {
 	constructor(plugin) {
 		fs = plugin.fs;
 		path = plugin.path;
@@ -12,7 +12,7 @@ CssModulesCompiler = class CssModulesCompiler {
 
 	processFilesForTarget(files) {
 		var plugins = new PluginsLoader().load();
-		var processor = new CssProcessor('./', plugins);
+		var processor = new CssModulesProcessor('./', plugins);
 		var firstFile = files[0];
 		const { tokens } = processFiles(files, processor);
 		outputCompiledJs(tokens, firstFile);

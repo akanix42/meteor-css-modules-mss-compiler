@@ -1,7 +1,7 @@
 var postcss = Npm.require('postcss');
 var Parser = Npm.require('css-modules-loader-core/lib/parser');
 
-CssProcessor = class CssProcessor {
+CssModulesProcessor = class CssModulesProcessor {
 	constructor(root, plugins) {
 		this.root = root;
 		this.importNr = 0;
