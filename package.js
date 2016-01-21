@@ -36,6 +36,7 @@ Package.onUse(function (api) {
 
 Npm.depends(
 	{
+		"app-module-path": "1.0.4",
 		"cjson": "0.3.3",
 		"css-modules-loader-core": "1.0.0",
 		"postcss": "5.0.10",
@@ -43,7 +44,6 @@ Npm.depends(
 		"postcss-modules-extract-imports": "1.0.0",
 		"postcss-modules-scope": "1.0.0",
 		"postcss-modules-values": "1.1.1",
-		'app-module-path': '1.0.4'
 
 	}
 );
