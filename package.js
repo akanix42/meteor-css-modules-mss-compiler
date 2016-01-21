@@ -36,9 +36,9 @@ Package.onUse(function (api) {
 
 Npm.depends(
 	{
+		"cjson": "0.3.3",
 		"css-modules-loader-core": "1.0.0",
 		"postcss": "5.0.10",
-		"strip-json-comments": "1.0.4",
 		"postcss-modules-local-by-default": "1.0.0",
 		"postcss-modules-extract-imports": "1.0.0",
 		"postcss-modules-scope": "1.0.0",

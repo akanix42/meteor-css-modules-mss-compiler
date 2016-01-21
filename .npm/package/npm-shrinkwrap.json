@@ -3,6 +3,19 @@
     "app-module-path": {
       "version": "1.0.4"
     },
+    "cjson": {
+      "version": "0.3.3",
+      "dependencies": {
+        "json-parse-helpfulerror": {
+          "version": "1.0.3",
+          "dependencies": {
+            "jju": {
+              "version": "1.2.1"
+            }
+          }
+        }
+      }
+    },
     "css-modules-loader-core": {
       "version": "1.0.0",
       "dependencies": {
@@ -75,9 +88,6 @@
           "version": "1.0.2"
         }
       }
-    },
-    "strip-json-comments": {
-      "version": "1.0.4"
     }
   }
 }

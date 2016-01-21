@@ -2,6 +2,9 @@ var optionsFilePath = 'config/css-modules.json';
 var appModulePath = Npm.require('app-module-path');
 appModulePath.addPath(process.cwd() + '/packages/npm-container/.npm/package/node_modules/');
 
+var fs = Npm.require('fs');
+var cjson = Npm.require('cjson');
+
 var corePlugins = {
 	"postcss-modules-local-by-default": Npm.require("postcss-modules-local-by-default"),
 	"postcss-modules-extract-imports": Npm.require("postcss-modules-extract-imports"),
@@ -47,7 +50,7 @@ function loadPlugins() {
 function loadOptionsFile() {
 	createDefaultOptionsFile();
 
-	return loadJsonFile(optionsFilePath);
+	return cjson.load(optionsFilePath);
 
 
 	function createDefaultOptionsFile() {
@@ -93,8 +96,8 @@ function loadJsonOrMssFile(filePath) {
 		var index = str.lastIndexOf(character);
 		return str.substring(0, index) + str.substring(index+1);
 	};
-	var loadMssFile = R.compose(variables=> ({variables: variables}), JSON.parse, str=>`{${str}}`, R.curry(removeLastOccurrence)(','), R.replace(/\$(.*):\s*(.*),/g, '"$1":"$2",'), R.replace(/;/g, ','), R.partialRight(fs.readFileSync, 'utf-8'));
-	return filePath.endsWith(".mss") ? loadMssFile(filePath) : loadJsonFile(filePath);
+	var loadMssFile = R.compose(variables=> ({variables: variables}), cjson.parse, str=>`{${str}}`, R.curry(removeLastOccurrence)(','), R.replace(/\$(.*):\s*(.*),/g, '"$1":"$2",'), R.replace(/;/g, ','), R.partialRight(fs.readFileSync, 'utf-8'));
+	return filePath.endsWith(".mss") ? loadMssFile(filePath) : cjson.load(filePath);
 }
 
 function decodeFilePath(filePath) {
