@@ -1,4 +1,3 @@
-var optionsFilePath = 'config/css-modules.json';
 var appModulePath = Npm.require('app-module-path');
 appModulePath.addPath(process.cwd() + '/packages/npm-container/.npm/package/node_modules/');
 
@@ -19,23 +18,12 @@ corePlugins['postcss-modules-scope'].generateScopedName = function generateScope
 };
 
 PluginsLoader = class PluginsLoader {
-	load() {
-		return loadPlugins();
+	load(options) {
+		return loadPlugins(options);
 	}
 };
 
-
-function getDefaultOptions() {
-	var defaultOptions = {
-		postcssPlugins: undefined,
-		pluginOptions: {}
-	};
-	return defaultOptions;
-}
-
-
-function loadPlugins() {
-	var options = loadOptionsFile();
+function loadPlugins(options) {
 	var plugins = [];
 
 	R.forEach((pluginEntry)=> {
@@ -47,36 +35,6 @@ function loadPlugins() {
 	return plugins;
 }
 
-function loadOptionsFile() {
-	createDefaultOptionsFile();
-
-	return cjson.load(optionsFilePath);
-
-
-	function createDefaultOptionsFile() {
-		if (shouldHaveOptionsFile() && !fs.existsSync(optionsFilePath)) {
-			console.log('\n');
-			console.log("-> creating `config/css-modules.json` for the first time.");
-			console.log("-> customize your PostCSS plugins in `config/css-modules.json`");
-			console.log();
-
-			var directory = path.dirname(optionsFilePath);
-			fs.existsSync(directory) || fs.mkdirSync(directory);
-			fs.writeFileSync(optionsFilePath, Assets.getText('default-options-file.json'));
-		}
-	}
-
-	function shouldHaveOptionsFile() {
-		var unAcceptableCommands = {'test-packages': 1, 'publish': 1};
-		if (process.argv.length > 2) {
-			var command = process.argv[2];
-			if (unAcceptableCommands[command])
-				return false;
-		}
-
-		return true;
-	}
-}
 
 function applyPluginOptions(plugin, pluginEntry) {
 	var options = pluginEntry.options !== undefined ? pluginEntry.options : undefined;

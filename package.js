@@ -24,6 +24,7 @@ Package.onUse(function (api) {
 	api.addAssets('default-options-file.json', 'server');
 
 	api.addFiles([
+		'options-loader.js',
 		'plugins-loader.js',
 		'css-modules-js-template.js',
 		'css-modules-processor.js',

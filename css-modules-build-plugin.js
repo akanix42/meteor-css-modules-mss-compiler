@@ -1,8 +1,5 @@
-var optionsFilePath = 'config/css-modules.json';
-
 fs = null;
 path = null;
-
 
 CssModulesBuildPlugin = class CssModulesBuildPlugin {
 	constructor(plugin) {
@@ -10,19 +7,22 @@ CssModulesBuildPlugin = class CssModulesBuildPlugin {
 		path = plugin.path;
 	}
 
-	processFilesForTarget(files) {
-		var plugins = new PluginsLoader().load();
+	processFilesForBundle(files, meteorOptions) {
+		var options = loadOptionsFile();
+		var plugins = new PluginsLoader().load(options);
 		var processor = new CssModulesProcessor('./', plugins);
 		var firstFile = files[0];
-		const { tokens } = processFiles(files, processor);
+		const { tokens } = processFiles(files, processor, meteorOptions);
 		outputCompiledJs(tokens, firstFile);
 	}
 };
 
-
-function processFiles(files, processor) {
+function processFiles(files, processor, meteorOptions) {
 	const allFiles = createAllFilesMap(files);
-	files.forEach(processFile.bind(this));
+	var processedFiles = R.map(processFile.bind(this), files);
+	var minifier = new CssToolsMinifier();
+	minifier.processFilesForBundle(files, meteorOptions );
+
 	return {tokens: processor.tokensByFile};
 
 	function processFile(file) {
@@ -32,14 +32,13 @@ function processFiles(files, processor) {
 		};
 		return processor.process(source, './', allFiles)
 			.then((result)=> {
-				file.addStylesheet({
-					data: result.source,
-					path: file.getPathInPackage().replace('\.mss$', '.css'),
-					sourceMap: JSON.stringify(result.sourceMap)
-				});
-				return {tokens: result.tokens};
+				// override getContentsAsString so the css minifier can handle it
+				file.getContentsAsString = () => result.source;
+
+				return {tokens: result.tokens, css: result.source, sourceMap: JSON.stringify(result.sourceMap)};
 			}).await();
 	}
+
 }
 
 function createAllFilesMap(files) {
