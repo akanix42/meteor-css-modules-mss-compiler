@@ -9,7 +9,7 @@ var sourcemap = Npm.require('source-map');
 //	return minifier;
 //});
 
-function CssToolsMinifier () {};
+CssToolsMinifier = function CssToolsMinifier () {};
 
 CssToolsMinifier.prototype.processFilesForBundle = function (files, options) {
 	var mode = options.minifyMode;

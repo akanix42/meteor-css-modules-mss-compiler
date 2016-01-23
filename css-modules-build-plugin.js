@@ -8,6 +8,8 @@ CssModulesBuildPlugin = class CssModulesBuildPlugin {
 	}
 
 	processFilesForBundle(files, meteorOptions) {
+		if (files.length === 0) return;
+
 		var options = loadOptionsFile();
 		var plugins = new PluginsLoader().load(options);
 		var processor = new CssModulesProcessor('./', plugins);
@@ -21,13 +23,13 @@ function processFiles(files, processor, meteorOptions) {
 	const allFiles = createAllFilesMap(files);
 	var processedFiles = R.map(processFile.bind(this), files);
 	var minifier = new CssToolsMinifier();
-	minifier.processFilesForBundle(files, meteorOptions );
+	minifier.processFilesForBundle(files, meteorOptions);
 
 	return {tokens: processor.tokensByFile};
 
 	function processFile(file) {
 		var source = {
-			path: ImportPathHelpers.getImportPathInPackage(file),
+			path: ImportPathHelpers.getImportPathInBundle(file),
 			contents: file.getContentsAsBuffer().toString('utf8')
 		};
 		return processor.process(source, './', allFiles)
@@ -44,14 +46,14 @@ function processFiles(files, processor, meteorOptions) {
 function createAllFilesMap(files) {
 	var allFiles = new Map();
 	files.forEach((inputFile) => {
-		const importPath = ImportPathHelpers.getImportPathInPackage(inputFile);
+		const importPath = ImportPathHelpers.getImportPathInBundle(inputFile);
 		allFiles.set(importPath, inputFile);
 	});
 	return allFiles;
 }
 
 function outputCompiledJs(tokens, firstFile) {
-	firstFile.addJavaScript({
+	firstFile.addStylesheet({
 		data: CssModulesJsTemplate.get(tokens),
 		path: 'css-modules.js'
 	});

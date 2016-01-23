@@ -18,12 +18,16 @@ Package.onUse(function (api) {
 		'ecmascript',
 		'nathantreid:css-modules-import-path-helpers@0.0.1',
 		'ramda:ramda@0.17.1',
-		'meteorhacks:npm@1.5.0'
+		'meteorhacks:npm@1.5.0',
+		'minifiers'
+
 	]);
 
 	api.addAssets('default-options-file.json', 'server');
 
 	api.addFiles([
+		'js-minifier.js',
+		'css-minifier.js',
 		'options-loader.js',
 		'plugins-loader.js',
 		'css-modules-js-template.js',
