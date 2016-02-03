@@ -1,7 +1,8 @@
-var optionsFilePath = 'config/css-modules.json';
+var path = Npm.require('path');
 var appModulePath = Npm.require('app-module-path');
 appModulePath.addPath(process.cwd() + '/node_modules/');
 
+var optionsFilePath = path.resolve(process.cwd(), 'package.json');
 var fs = Npm.require('fs');
 var cjson = Npm.require('cjson');
 
@@ -18,83 +19,54 @@ corePlugins['postcss-modules-scope'].generateScopedName = function generateScope
 	return `_${sanitisedPath}__${exportedName}`;
 };
 
-PluginsLoader = class PluginsLoader {
-	load() {
-		return loadPlugins();
-	}
-};
-
-
-function getDefaultOptions() {
-	var defaultOptions = {
-		postcssPlugins: undefined,
-		pluginOptions: {}
-	};
-	return defaultOptions;
-}
-
-
-function loadPlugins() {
-	var options = loadOptionsFile();
+export default function loadPlugins() {
+	var options = loadOptionsFromPackageFile();
 	var plugins = [];
 
 	R.forEach((pluginEntry)=> {
-		var plugin = corePlugins[pluginEntry.package] || Npm.require(pluginEntry.package);
-		if (plugin === undefined) throw new Error(`plugin ${pluginEntry.package} was not found by NPM!`);
+		var packageName = pluginEntry[0];
+		var plugin = corePlugins[packageName] || Npm.require(packageName);
+		if (plugin === undefined) throw new Error(`plugin ${packageName} was not found by NPM!`);
 
-		plugins.push(applyPluginOptions(plugin, pluginEntry));
-	}, options.postcssPlugins);
+		plugins.push(applyPluginOptions(plugin, pluginEntry[1]));
+	}, R.toPairs(options));
 	return plugins;
 }
 
-function loadOptionsFile() {
-	createDefaultOptionsFile();
-
-	return cjson.load(optionsFilePath);
-
-
-	function createDefaultOptionsFile() {
-		if (shouldHaveOptionsFile() && !fs.existsSync(optionsFilePath)) {
-			console.log('\n');
-			console.log("-> creating `config/css-modules.json` for the first time.");
-			console.log("-> customize your PostCSS plugins in `config/css-modules.json`");
-			console.log();
-
-			var directory = path.dirname(optionsFilePath);
-			fs.existsSync(directory) || fs.mkdirSync(directory);
-			fs.writeFileSync(optionsFilePath, Assets.getText('default-options-file.json'));
-		}
+function loadOptionsFromPackageFile() {
+	var plugins;
+	if (fs.existsSync(optionsFilePath))
+	{
+		var options = cjson.load(optionsFilePath).cssModules;
+		if (options)
+		plugins = options.plugins;
 	}
 
-	function shouldHaveOptionsFile() {
-		var unAcceptableCommands = {'test-packages': 1, 'publish': 1};
-		if (process.argv.length > 2) {
-			var command = process.argv[2];
-			if (unAcceptableCommands[command])
-				return false;
+	return plugins || {
+			"postcss-modules-local-by-default": {},
+			"postcss-modules-extract-imports": {},
+			"postcss-modules-scope": {},
+			"postcss-modules-values": {}
 		}
-
-		return true;
-	}
 }
 
-function applyPluginOptions(plugin, pluginEntry) {
-	var options = pluginEntry.options !== undefined ? pluginEntry.options : undefined;
+function applyPluginOptions(plugin, options) {
+	var combinedOptions = options.inlineOptions !== undefined ? options.inlineOptions : undefined;
 	var fileOptions;
-	if (R.type(pluginEntry.optionsFiles) === 'Array') {
+	if (R.type(options.fileOptions) === 'Array') {
 		var getFilesAsJson = R.compose(R.reduce(deepExtend, {}), R.map(R.compose(loadJsonOrMssFile, decodeFilePath)));
-		fileOptions = getFilesAsJson(pluginEntry.optionsFiles);
+		fileOptions = getFilesAsJson(options.fileOptions);
 		if (Object.keys(fileOptions).length)
-			options = deepExtend(options || {}, fileOptions || {});
+			combinedOptions = deepExtend(combinedOptions || {}, fileOptions || {});
 	}
 
-	return options !== undefined ? plugin(options) : plugin;
+	return combinedOptions !== undefined ? plugin(combinedOptions) : plugin;
 }
 
 function loadJsonOrMssFile(filePath) {
 	var removeLastOccurrence = (character, str)=> {
 		var index = str.lastIndexOf(character);
-		return str.substring(0, index) + str.substring(index+1);
+		return str.substring(0, index) + str.substring(index + 1);
 	};
 	var loadMssFile = R.compose(variables=> ({variables: variables}), cjson.parse, str=>`{${str}}`, R.curry(removeLastOccurrence)(','), R.replace(/\$(.*):\s*(.*),/g, '"$1":"$2",'), R.replace(/;/g, ','), R.partialRight(fs.readFileSync, ['utf-8']));
 	return filePath.endsWith(".mss") ? loadMssFile(filePath) : cjson.load(filePath);

@@ -1,8 +1,6 @@
-var optionsFilePath = 'config/css-modules.json';
-
 Package.describe({
 	name: 'nathantreid:css-modules-mss-compiler',
-	version: '0.6.1',
+	version: '1.0.0-beta.1',
 	// Brief, one-line summary of the package.
 	summary: 'CSS modules MSS compiler.',
 	// URL to the Git repository containing the source code for this package.
@@ -19,7 +17,7 @@ Package.onUse(function (api) {
 		'ramda:ramda@0.19.0',
 	]);
 
-	api.addAssets('default-options-file.json', 'server');
+	api.imply('nathantreid:css-modules-import-path-helpers');
 
 	api.addFiles([
 		'plugins-loader.js',
@@ -28,7 +26,6 @@ Package.onUse(function (api) {
 		'css-modules-build-plugin.js'
 	], 'server');
 
-	api.export('ImportPathHelpers');
 	api.export('CssModulesBuildPlugin');
 });
 
@@ -45,14 +42,3 @@ Npm.depends(
 
 	}
 );
-
-function shouldHaveOptionsFile() {
-	var unAcceptableCommands = {'test-packages': 1, 'publish': 1};
-	if (process.argv.length > 2) {
-		var command = process.argv[2];
-		if (unAcceptableCommands[command])
-			return false;
-	}
-
-	return true;
-}

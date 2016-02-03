@@ -1,4 +1,4 @@
-var optionsFilePath = 'config/css-modules.json';
+import loadPlugins from './plugins-loader';
 
 fs = null;
 path = null;
@@ -11,7 +11,7 @@ CssModulesBuildPlugin = class CssModulesBuildPlugin {
 	}
 
 	processFilesForTarget(files) {
-		var plugins = new PluginsLoader().load();
+		var plugins = loadPlugins();
 		var processor = new CssModulesProcessor('./', plugins);
 		var firstFile = files[0];
 		const { tokens } = processFiles(files, processor);
