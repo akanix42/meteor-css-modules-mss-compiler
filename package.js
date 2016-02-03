@@ -13,12 +13,10 @@ Package.describe({
 });
 
 Package.onUse(function (api) {
-	api.versionsFrom('1.2.0.1');
 	api.use([
 		'ecmascript',
 		'nathantreid:css-modules-import-path-helpers@0.0.1',
 		'ramda:ramda@0.19.0',
-		'meteorhacks:npm@1.5.0'
 	]);
 
 	api.addAssets('default-options-file.json', 'server');
@@ -28,7 +26,7 @@ Package.onUse(function (api) {
 		'css-modules-js-template.js',
 		'css-modules-processor.js',
 		'css-modules-build-plugin.js'
-	]);
+	], 'server');
 
 	api.export('ImportPathHelpers');
 	api.export('CssModulesBuildPlugin');

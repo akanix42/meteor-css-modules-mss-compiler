@@ -1,6 +1,6 @@
 var optionsFilePath = 'config/css-modules.json';
 var appModulePath = Npm.require('app-module-path');
-appModulePath.addPath(process.cwd() + '/packages/npm-container/.npm/package/node_modules/');
+appModulePath.addPath(process.cwd() + '/node_modules/');
 
 var fs = Npm.require('fs');
 var cjson = Npm.require('cjson');
