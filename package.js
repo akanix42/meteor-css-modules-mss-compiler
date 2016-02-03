@@ -17,7 +17,7 @@ Package.onUse(function (api) {
 	api.use([
 		'ecmascript',
 		'nathantreid:css-modules-import-path-helpers@0.0.1',
-		'ramda:ramda@0.17.1',
+		'ramda:ramda@0.19.0',
 		'meteorhacks:npm@1.5.0'
 	]);
 

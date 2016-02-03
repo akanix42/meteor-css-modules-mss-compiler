@@ -96,7 +96,7 @@ function loadJsonOrMssFile(filePath) {
 		var index = str.lastIndexOf(character);
 		return str.substring(0, index) + str.substring(index+1);
 	};
-	var loadMssFile = R.compose(variables=> ({variables: variables}), cjson.parse, str=>`{${str}}`, R.curry(removeLastOccurrence)(','), R.replace(/\$(.*):\s*(.*),/g, '"$1":"$2",'), R.replace(/;/g, ','), R.partialRight(fs.readFileSync, 'utf-8'));
+	var loadMssFile = R.compose(variables=> ({variables: variables}), cjson.parse, str=>`{${str}}`, R.curry(removeLastOccurrence)(','), R.replace(/\$(.*):\s*(.*),/g, '"$1":"$2",'), R.replace(/;/g, ','), R.partialRight(fs.readFileSync, ['utf-8']));
 	return filePath.endsWith(".mss") ? loadMssFile(filePath) : cjson.load(filePath);
 }
 
