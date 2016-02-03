@@ -12,12 +12,12 @@ Package.describe({
 
 Package.onUse(function (api) {
 	api.use([
-		'ecmascript',
+		'ecmascript@0.4.0-modules.5',
 		'nathantreid:css-modules-import-path-helpers@0.0.1',
 		'ramda:ramda@0.19.0',
 	]);
 
-	api.imply('nathantreid:css-modules-import-path-helpers');
+	api.imply('nathantreid:css-modules-import-path-helpers@0.0.1');
 
 	api.addFiles([
 		'plugins-loader.js',
