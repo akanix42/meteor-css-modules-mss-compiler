@@ -2,10 +2,11 @@ var postcss = Npm.require('postcss');
 var Parser = Npm.require('css-modules-loader-core/lib/parser');
 
 CssModulesProcessor = class CssModulesProcessor {
-	constructor(root, plugins) {
+	constructor(root, pluginsAndOptions) {
 		this.root = root;
 		this.importNr = 0;
-		this.plugins = plugins;
+		this.plugins = pluginsAndOptions.plugins;
+		this.options = pluginsAndOptions.options;
 		this.tokensByFile = {};
 	}
 
@@ -25,7 +26,7 @@ CssModulesProcessor = class CssModulesProcessor {
 				this.load(source.contents, source.path, trace, processInternal.bind(this))
 					.then(({ injectableSource, exportTokens, sourceMap }) => {
 						this.tokensByFile[source.path] = exportTokens;
-						resolve({source: injectableSource, tokens: exportTokens, sourceMap: sourceMap});
+						resolve({source: injectableSource, tokens: tokens, sourceMap: sourceMap});
 					}, reject);
 			});
 		}
@@ -51,16 +52,40 @@ CssModulesProcessor = class CssModulesProcessor {
 
 	load(sourceString, sourcePath, trace, pathFetcher) {
 		let parser = new Parser(pathFetcher, trace);
+		let simpleVariables = {};
+		var plugins = this.plugins.slice();
+		setUpSimpleVarsExtraction(this.options, plugins);
 
-		return postcss(this.plugins.concat([parser.plugin]))
+		return postcss(plugins.concat([parser.plugin]))
 			.process(sourceString, {
 				from: sourcePath,
 				to: sourcePath.replace('\.mss$', '.css'),
 				map: {inline: false}
 			})
 			.then(result => {
-				return {injectableSource: result.css, exportTokens: parser.exportTokens, sourceMap: result.map};
+				return {
+					injectableSource: result.css,
+					exportTokens: R.merge(simpleVariables, parser.exportTokens),
+					sourceMap: result.map
+				};
 			});
-	}
 
+		function setUpSimpleVarsExtraction(options, plugins) {
+			if (options.extractSimpleVars === false) return;
+
+			var findSimpleVarsPlugin = R.findIndex(plugin=>plugin.postcss && plugin.postcss.postcssPlugin === 'postcss-simple-vars');
+			var pluginIndex = findSimpleVarsPlugin(plugins)
+
+			if (pluginIndex === -1) return;
+
+			let appendPrefixToVariableNames = R.compose(R.fromPairs, R.map(pair=> {
+				pair[0] = '$' + pair[0];
+				return pair;
+			}), R.toPairs);
+			plugins[pluginIndex] = plugins[pluginIndex](R.merge(plugins[pluginIndex].options, {
+					onVariables: variables => simpleVariables = appendPrefixToVariableNames(variables) || {}
+				}
+			));
+		}
+	}
 };

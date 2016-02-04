@@ -11,8 +11,8 @@ CssModulesBuildPlugin = class CssModulesBuildPlugin {
 	}
 
 	processFilesForTarget(files) {
-		var plugins = new PluginsLoader().load();
-		var processor = new CssModulesProcessor('./', plugins);
+		var pluginsAndOptions = new PluginsLoader().load();
+		var processor = new CssModulesProcessor('./', pluginsAndOptions);
 		var firstFile = files[0];
 		const { tokens } = processFiles(files, processor);
 		outputCompiledJs(tokens, firstFile);

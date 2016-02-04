@@ -25,15 +25,6 @@ PluginsLoader = class PluginsLoader {
 };
 
 
-function getDefaultOptions() {
-	var defaultOptions = {
-		postcssPlugins: undefined,
-		pluginOptions: {}
-	};
-	return defaultOptions;
-}
-
-
 function loadPlugins() {
 	var options = loadOptionsFile();
 	var plugins = [];
@@ -42,9 +33,19 @@ function loadPlugins() {
 		var plugin = corePlugins[pluginEntry.package] || Npm.require(pluginEntry.package);
 		if (plugin === undefined) throw new Error(`plugin ${pluginEntry.package} was not found by NPM!`);
 
-		plugins.push(applyPluginOptions(plugin, pluginEntry));
+		var pluginOptions = getPluginOptions(pluginEntry);
+		if (options.extractSimpleVars !== false && pluginEntry.package === 'postcss-simple-vars') {
+			plugin.options = pluginOptions;
+		} else
+			plugin = pluginOptions !== undefined ? plugin(pluginOptions) : plugin;
+
+		plugins.push(plugin);
 	}, options.postcssPlugins);
-	return plugins;
+
+	return {
+		options: options,
+		plugins: plugins
+	};
 }
 
 function loadOptionsFile() {
@@ -78,7 +79,7 @@ function loadOptionsFile() {
 	}
 }
 
-function applyPluginOptions(plugin, pluginEntry) {
+function getPluginOptions(pluginEntry) {
 	var options = pluginEntry.options !== undefined ? pluginEntry.options : undefined;
 	var fileOptions;
 	if (R.type(pluginEntry.optionsFiles) === 'Array') {
@@ -87,14 +88,13 @@ function applyPluginOptions(plugin, pluginEntry) {
 		if (Object.keys(fileOptions).length)
 			options = deepExtend(options || {}, fileOptions || {});
 	}
-
-	return options !== undefined ? plugin(options) : plugin;
+	return options;
 }
 
 function loadJsonOrMssFile(filePath) {
 	var removeLastOccurrence = (character, str)=> {
 		var index = str.lastIndexOf(character);
-		return str.substring(0, index) + str.substring(index+1);
+		return str.substring(0, index) + str.substring(index + 1);
 	};
 	var loadMssFile = R.compose(variables=> ({variables: variables}), cjson.parse, str=>`{${str}}`, R.curry(removeLastOccurrence)(','), R.replace(/\$(.*):\s*(.*),/g, '"$1":"$2",'), R.replace(/;/g, ','), R.partialRight(fs.readFileSync, ['utf-8']));
 	return filePath.endsWith(".mss") ? loadMssFile(filePath) : cjson.load(filePath);
