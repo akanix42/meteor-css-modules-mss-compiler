@@ -2,7 +2,7 @@ var optionsFilePath = 'config/css-modules.json';
 
 Package.describe({
 	name: 'nathantreid:css-modules-mss-compiler',
-	version: '0.6.1',
+	version: '0.7.0',
 	// Brief, one-line summary of the package.
 	summary: 'CSS modules MSS compiler.',
 	// URL to the Git repository containing the source code for this package.
