@@ -4,6 +4,7 @@ appModulePath.addPath(process.cwd() + '/packages/npm-container/.npm/package/node
 
 var fs = Npm.require('fs');
 var cjson = Npm.require('cjson');
+var path = Npm.require('path');
 
 var corePlugins = {
 	"postcss-modules-local-by-default": Npm.require("postcss-modules-local-by-default"),
@@ -12,9 +13,10 @@ var corePlugins = {
 	"postcss-modules-values": Npm.require("postcss-modules-values"),
 };
 
-corePlugins['postcss-modules-scope'].generateScopedName = function generateScopedName(exportedName, path) {
-	let sanitisedPath = path.replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
-
+corePlugins['postcss-modules-scope'].generateScopedName = function generateScopedName(exportedName, filePath) {
+	let sanitisedPath = filePath.replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
+	let filename = path.basename(filePath).replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
+	sanitisedPath = sanitisedPath.replace(new RegExp(`_(${filename})$`), '__$1');
 	return `_${sanitisedPath}__${exportedName}`;
 };
 
