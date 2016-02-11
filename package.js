@@ -2,7 +2,7 @@ var optionsFilePath = 'config/css-modules.json';
 
 Package.describe({
 	name: 'nathantreid:css-modules-mss-compiler',
-	version: '0.8.0',
+	version: '0.9.0-alpha.1',
 	// Brief, one-line summary of the package.
 	summary: 'CSS modules MSS compiler.',
 	// URL to the Git repository containing the source code for this package.
@@ -44,7 +44,7 @@ Npm.depends(
 		"postcss-modules-extract-imports": "1.0.0",
 		"postcss-modules-scope": "1.0.0",
 		"postcss-modules-values": "1.1.1",
-
+		"node-sass": "3.4.2"
 	}
 );
 

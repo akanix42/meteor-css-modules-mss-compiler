@@ -1,6 +1,8 @@
 var postcss = Npm.require('postcss');
 var Parser = Npm.require('css-modules-loader-core/lib/parser');
+var sass = Npm.require('node-sass');
 
+var globalI = 0;
 CssModulesProcessor = class CssModulesProcessor {
 	constructor(root, pluginsAndOptions) {
 		this.root = root;
@@ -42,7 +44,16 @@ CssModulesProcessor = class CssModulesProcessor {
 		function importModule(importPath) {
 			try {
 				var file = allFiles.get(importPath);
-				var contents = file.getContentsAsString();
+				var contents = file.contents;
+				if (globalI == 0){
+					globalI++;
+					console.log('import')
+				//console.dir(file.getFileOptions())
+				}
+				if (contents.length && file.getFileOptions()['isScss'])
+					contents = sass.renderSync({
+						data: contents
+					});
 				return contents;
 			} catch (e) {
 				throw new Error(`CSS Modules: unable to read file ${importPath}: ${JSON.stringify(e)}`);
